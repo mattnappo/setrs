@@ -1,4 +1,5 @@
 use crate::oracle;
+use core::fmt;
 use itertools::iproduct;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
@@ -16,6 +17,20 @@ macro_rules! generate_from_impl {
         }
     };
 }
+
+/* -- TODO make csv
+macro_rules! generate_display_impl {
+    ($enum_name:ident { $($variant:literal),+ $(,)? }) => {
+        impl fmt::Display for $enum_name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                match t {
+                    $($enum_name::$variant => $enum_name::$variant,)+
+                }
+            }
+        }
+    };
+}
+*/
 
 /*
 macro_rules! swap {
@@ -55,6 +70,43 @@ pub enum Number {
     Three,
 }
 
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Color::Red => write!(f, "R"),
+            Color::Green => write!(f, "G"),
+            Color::Purple => write!(f, "P"),
+        }
+    }
+}
+impl fmt::Display for Shape {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Shape::Oval => write!(f, "○"),
+            Shape::Diamond => write!(f, "♢"),
+            Shape::Squiggle => write!(f, "⌇"),
+        }
+    }
+}
+impl fmt::Display for Shading {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Shading::Solid => write!(f, "●"),
+            Shading::Striped => write!(f, "◍"),
+            Shading::Outlined => write!(f, "○"),
+        }
+    }
+}
+impl fmt::Display for Number {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Number::One => write!(f, "1"),
+            Number::Two => write!(f, "2"),
+            Number::Three => write!(f, "3"),
+        }
+    }
+}
+
 generate_from_impl!(Color { Red, Green, Purple });
 generate_from_impl!(Shape {
     Oval,
@@ -74,6 +126,16 @@ pub struct Card {
     shape: Shape,
     shading: Shading,
     number: Number,
+}
+
+impl fmt::Display for Card {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}{}{}{}",
+            self.color, self.shape, self.shading, self.number
+        )
+    }
 }
 
 enum Feature {
@@ -191,6 +253,21 @@ pub struct Game {
     sets: Vec<Set>,
     /// Number of sets on the board
     playable: bool,
+}
+
+impl fmt::Display for Game {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let hand = self.hand();
+        let mut c = 0;
+        for _ in 0..3 {
+            for _ in 0..4 {
+                write!(f, "{} ", hand[c])?;
+                c += 1;
+            }
+            write!(f, "\n")?;
+        }
+        write!(f, "")
+    }
 }
 
 impl Game {

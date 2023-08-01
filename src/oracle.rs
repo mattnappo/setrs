@@ -6,6 +6,12 @@ pub struct Oracle;
 
 impl SetFinder for Oracle {
     fn find(&self, hand: &[Card]) -> Option<Index> {
+        self.find_all(hand).into_iter().take(1).next()
+    }
+}
+
+impl Oracle {
+    fn find_all(&self, hand: &[Card]) -> Vec<Index> {
         hand.into_iter()
             .enumerate()
             .combinations(3)
@@ -17,8 +23,7 @@ impl SetFinder for Oracle {
             })
             .filter(|(_, set)| set.is_valid())
             .map(|(index, _)| index)
-            .take(1)
-            .next()
+            .collect_vec()
     }
 }
 
@@ -30,9 +35,11 @@ mod tests {
     fn test_oracle() {
         let o = Oracle;
         let mut g = Game::new(false);
-        let set = o.find(g.hand());
-        println!("hand: {:?}", g.hand());
-        println!("set: {:?}", set);
-        g.add_set(set.unwrap());
+
+        for _ in 0..5 {
+            println!("{g}");
+            let hand = g.hand();
+            assert!(g.add_set(o.find(hand).unwrap()));
+        }
     }
 }
