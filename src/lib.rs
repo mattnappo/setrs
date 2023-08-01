@@ -94,6 +94,7 @@ impl From<(i32, i32, i32, i32)> for Card {
 }
 
 /// An index in the hand
+#[derive(Clone, Copy)]
 struct Index(usize, usize, usize);
 
 impl Index {
@@ -174,7 +175,7 @@ impl Set {
 /// A set finder
 /// Any struct that implements this trait can be benchmarked
 trait Finder {
-    fn find(&mut self, game: &Game) -> Index;
+    fn find(&mut self, hand: &[Card]) -> Option<Index>;
 }
 
 /// Run a user-supplied finder on a random game
@@ -193,8 +194,28 @@ impl<F: Finder> Solver<F> {
 
     /// Play a full game using the user's finder
     /// Return all the found sets
-    pub fn run(&mut self) -> Vec<Set> {
-        todo!()
+    pub fn run(&mut self) -> Option<&[Set]> {
+        // While the game is playable (TODO: whatever that means)
+        // OR (thought): make find_set return None if no set
+
+        // While game is playable (game is not playable when there are no more cards
+        // in the deck and no sets in the hand, otherwise it is playable)
+        while self.game.playable {
+            let hand = self.game.hand();
+
+            let valid = self
+                .finder
+                .find(hand)
+                .map(|set| self.game.add_set(set))
+                .or_else(|| Some(self.game.draw_three()))
+                .unwrap();
+
+            if !valid {
+                return None;
+            }
+        }
+
+        Some(&self.game.sets)
     }
 }
 
@@ -206,11 +227,13 @@ struct Game {
     hand: usize,
     /// The found sets so far. sets+deck = full 81 cards
     sets: Vec<Set>,
+    /// Number of sets on the board
+    playable: bool,
 }
 
 impl Game {
-    pub fn new(shuffle: bool) -> Self {
-        Self {
+    pub fn new(shuffle: bool) -> Game {
+        let mut game = Game {
             deck: {
                 let mut d = iproduct!(0..3, 0..3, 0..3, 0..3)
                     .map(Card::from)
@@ -222,7 +245,15 @@ impl Game {
             },
             hand: 12,
             sets: Vec::new(),
-        }
+            playable: false,
+        };
+        Game::update_playable(&mut game);
+        game
+    }
+
+    /// Count number of sets on the board using the `Oracle`
+    fn update_playable(&mut self) {
+        // consult the oracle
     }
 
     /// Return a set given card indices
@@ -271,9 +302,10 @@ impl Game {
 
     /// Draw three more cards from the hand
     /// Returns false if there are sets on the board
-    pub fn draw_three(&mut self) {
+    pub fn draw_three(&mut self) -> bool {
         // TODO: check if no sets first
         self.hand += 3;
+        true
     }
 }
 
