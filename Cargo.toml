@@ -1,5 +1,5 @@
 [package]
-name = "set"
+name = "setrs"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,3 +8,8 @@ edition = "2021"
 [dependencies]
 itertools = "0.10.0"
 rand = "0.6.0"
+criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bench]]
+name = "benchmark"
+harness = false

@@ -1,5 +1,5 @@
 use crate::engine::SetFinder;
-use crate::oracle;
+use crate::solvers::oracle;
 use core::fmt;
 use itertools::iproduct;
 use rand::seq::SliceRandom;
@@ -44,7 +44,7 @@ macro_rules! swap {
 */
 
 #[derive(Debug, PartialEq, Clone, Copy)]
-enum Color {
+pub enum Color {
     Red,
     Green,
     Purple,
@@ -253,8 +253,6 @@ pub struct Game {
     hand: usize,
     /// The found sets so far. sets+deck = full 81 cards
     sets: Vec<Set>,
-    /// Number of sets on the board
-    playable: bool,
 }
 
 impl fmt::Display for Game {
@@ -286,31 +284,24 @@ impl Game {
             },
             hand: 12,
             sets: Vec::new(),
-            playable: false,
         };
-        Game::update_playable(&mut game);
         game
-    }
-
-    pub fn playable(&self) -> bool {
-        self.playable
-    }
-
-    pub fn sets(&self) -> &[Set] {
-        &self.sets
     }
 
     /// The game is not playable when there are no sets on the board
     /// and there are no more cards in the deck. Otherwise, it is playable.
     /// That is, it is playable when (there are more cards in the deck) v (there
     /// is a set on the board)
-    fn update_playable(&mut self) {
-        // consult the oracle
+    pub fn playable(&self) -> bool {
+        // Consult the oracle
         let oracle = oracle::Oracle;
         let has_set = oracle.find(self.hand()).is_some();
         let has_cards = self.deck.len() > self.hand;
+        has_set || has_cards
+    }
 
-        self.playable = has_set || has_cards;
+    pub fn sets(&self) -> &[Set] {
+        &self.sets
     }
 
     /// Return a set given card indices
@@ -354,7 +345,6 @@ impl Game {
                 if self.deck.len() < 12 {
                     self.hand = self.deck.len();
                 }
-                self.update_playable();
                 true
             })
     }
@@ -362,14 +352,12 @@ impl Game {
     /// Draw three more cards from the hand
     /// Returns false if there are sets on the board
     pub fn draw_three(&mut self) -> bool {
-        // TODO: check if no sets first
         if self.deck.len() >= 3 {
             self.hand += 3;
-            self.update_playable();
             true
         } else {
             false
-        } // GRR
+        }
     }
 }
 

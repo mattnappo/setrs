@@ -1,6 +1,6 @@
 use crate::game::*;
 
-/// A set finder
+/// A set finder.
 /// Any struct that implements this trait can be benchmarked
 pub trait SetFinder {
     /// Given a hand, find a set in the hand. Can return any found set.
@@ -9,7 +9,7 @@ pub trait SetFinder {
 }
 
 /// Run a user-supplied finder on a random game
-struct Solver<F: SetFinder> {
+pub struct Solver<F: SetFinder> {
     game: Game,
     finder: F,
 }
@@ -22,14 +22,8 @@ impl<F: SetFinder> Solver<F> {
         }
     }
 
-    /// Play a full game using the user's finder
-    /// Return all the found sets
+    /// Play a full game using the user's finder and return all found sets
     pub fn run(&mut self) -> Option<&[Set]> {
-        // While the game is playable (TODO: whatever that means)
-        // OR (thought): make find_set return None if no set
-
-        // While game is playable (game is not playable when there are no more cards
-        // in the deck and no sets in the hand, otherwise it is playable)
         while self.game.playable() {
             let hand = self.game.hand();
 
@@ -52,7 +46,7 @@ impl<F: SetFinder> Solver<F> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::oracle;
+    use crate::solvers::oracle;
 
     #[test]
     fn test_oracle_engine() {
