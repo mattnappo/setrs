@@ -1,3 +1,4 @@
+use crate::engine::SetFinder;
 use crate::oracle;
 use core::fmt;
 use itertools::iproduct;
@@ -244,6 +245,7 @@ impl Set {
 }
 
 /// The core state of a game of Set
+#[derive(Debug)]
 pub struct Game {
     /// The cards left in the deck/hand
     deck: Vec<Card>,
@@ -260,7 +262,7 @@ impl fmt::Display for Game {
         let hand = self.hand();
         let mut c = 0;
         for _ in 0..3 {
-            for _ in 0..4 {
+            for _ in 0..(self.hand / 3) {
                 write!(f, "{} ", hand[c])?;
                 c += 1;
             }
@@ -298,10 +300,17 @@ impl Game {
         &self.sets
     }
 
-    /// Count number of sets on the board using the `Oracle`
+    /// The game is not playable when there are no sets on the board
+    /// and there are no more cards in the deck. Otherwise, it is playable.
+    /// That is, it is playable when (there are more cards in the deck) v (there
+    /// is a set on the board)
     fn update_playable(&mut self) {
         // consult the oracle
         let oracle = oracle::Oracle;
+        let has_set = oracle.find(self.hand()).is_some();
+        let has_cards = self.deck.len() > self.hand;
+
+        self.playable = has_set || has_cards;
     }
 
     /// Return a set given card indices
@@ -320,7 +329,7 @@ impl Game {
 
     /* -- Gameplay functions -- */
 
-    // See the current hand
+    /// See the current hand
     pub fn hand(&self) -> &[Card] {
         &self.deck[..self.hand]
     }
@@ -342,6 +351,10 @@ impl Game {
                 if self.hand > 12 {
                     self.hand -= 3;
                 }
+                if self.deck.len() < 12 {
+                    self.hand = self.deck.len();
+                }
+                self.update_playable();
                 true
             })
     }
@@ -350,8 +363,13 @@ impl Game {
     /// Returns false if there are sets on the board
     pub fn draw_three(&mut self) -> bool {
         // TODO: check if no sets first
-        self.hand += 3;
-        true
+        if self.deck.len() >= 3 {
+            self.hand += 3;
+            self.update_playable();
+            true
+        } else {
+            false
+        } // GRR
     }
 }
 

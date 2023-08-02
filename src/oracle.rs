@@ -2,6 +2,7 @@ use crate::engine::SetFinder;
 use crate::game::*;
 use itertools::Itertools;
 
+/// A naive and slow, but correct, set finder
 pub struct Oracle;
 
 impl SetFinder for Oracle {
@@ -37,7 +38,6 @@ mod tests {
         let mut g = Game::new(false);
 
         for _ in 0..5 {
-            println!("{g}");
             let hand = g.hand();
             assert!(g.add_set(o.find(hand).unwrap()));
         }

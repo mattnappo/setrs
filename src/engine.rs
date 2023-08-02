@@ -3,6 +3,8 @@ use crate::game::*;
 /// A set finder
 /// Any struct that implements this trait can be benchmarked
 pub trait SetFinder {
+    /// Given a hand, find a set in the hand. Can return any found set.
+    /// Should only return None if there are no sets in the hand.
     fn find(&self, hand: &[Card]) -> Option<Index>;
 }
 
@@ -44,5 +46,19 @@ impl<F: SetFinder> Solver<F> {
         }
 
         Some(self.game.sets())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::oracle;
+
+    #[test]
+    fn test_oracle_engine() {
+        let mut solver = Solver::new(oracle::Oracle);
+        solver.run().unwrap().into_iter().for_each(|set| {
+            assert!(set.is_valid());
+        });
     }
 }
