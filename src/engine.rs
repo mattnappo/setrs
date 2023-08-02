@@ -22,7 +22,8 @@ impl<F: SetFinder> Solver<F> {
         }
     }
 
-    /// Play a full game using the user's finder and return all found sets
+    /// Play a full game using the user's finder and return all found sets.
+    /// Returns `None` if the given `SetFinder` is incorrect
     pub fn run(&mut self) -> Option<&[Set]> {
         while self.game.playable() {
             let hand = self.game.hand();

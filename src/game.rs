@@ -351,7 +351,8 @@ impl Game {
     /// Draw three more cards from the hand
     /// Returns false if there are sets on the board
     pub fn draw_three(&mut self) -> bool {
-        if self.deck.len() >= 3 {
+        //if self.deck.len() >= 3 && self.deck.len() < 81 {
+        if self.deck.len() >= 3 && self.deck.len() < 81 {
             self.hand += 3;
             true
         } else {
