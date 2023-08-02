@@ -272,7 +272,7 @@ impl fmt::Display for Game {
 
 impl Game {
     pub fn new(shuffle: bool) -> Game {
-        let mut game = Game {
+        Game {
             deck: {
                 let mut d = iproduct!(0..3, 0..3, 0..3, 0..3)
                     .map(Card::from)
@@ -284,8 +284,7 @@ impl Game {
             },
             hand: 12,
             sets: Vec::new(),
-        };
-        game
+        }
     }
 
     /// The game is not playable when there are no sets on the board

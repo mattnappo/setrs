@@ -9,7 +9,8 @@ edition = "2021"
 itertools = "0.10.0"
 rand = "0.6.0"
 criterion = { version = "0.4", features = ["html_reports"] }
+paste = "1.0.14"
 
 [[bench]]
-name = "benchmark"
+name = "solvers"
 harness = false
