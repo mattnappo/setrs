@@ -321,6 +321,8 @@ impl Game {
 
     /// See the current hand
     pub fn hand(&self) -> &[Card] {
+        dbg!(self.hand, self.deck.len());
+        println!("");
         &self.deck[..self.hand]
     }
 
