@@ -1,11 +1,10 @@
 use crate::engine::SetFinder;
 use crate::game::*;
 
-pub struct SimpleSolver;
+pub struct SweepSolver;
 
-impl SetFinder for SimpleSolver {
+impl SetFinder for SweepSolver {
     fn find(&self, hand: &[Card]) -> Option<Index> {
-        // Implement your solver here!
         todo!()
     }
 }
